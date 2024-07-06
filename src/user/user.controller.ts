@@ -1,5 +1,5 @@
 // src/user/user.controller.ts
-import { Controller, Get, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { JwtGuard } from '../auth/jwt-auth.guard';
 import { UserService } from './user.service';
 
@@ -8,6 +8,7 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   async getUser(@Param('id') id: string, @Req() req) {
     return this.userService.getUser(id, req.user.userId);
