@@ -1,6 +1,6 @@
 // src/organisation/organisation.service.ts
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../typeorm/typeorm.service';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { AddUserDto } from './dto/add-user.dto';
 
