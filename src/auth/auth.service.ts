@@ -1,33 +1,37 @@
 import { Injectable, ConflictException, UnprocessableEntityException } from '@nestjs/common';
-import { PrismaService } from '../typeorm/typeorm.service';
+import { DataSource } from 'typeorm';
+import { User } from '../user/user.entity'; // Adjust the path as needed
+import { DatabaseService } from '../database/database.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
+  private dataSource: DataSource;
     constructor(
-        private readonly prisma: PrismaService,
+      private databaseService: DatabaseService,
         private readonly jwtService: JwtService,
-      ) {}
+      ) {
+        this.dataSource = this.databaseService.getDataSource();
+      }
       async create(createUserDto: CreateUserDto) {
         const { firstName, lastName, email, password, phone } = createUserDto;
-    
-        const existingUser = await this.prisma.user.findUnique({ where: { email } });
+        const userRepository = this.dataSource.getRepository(User)
+        const organisationRepository = this.dataSource.getRepository(User)
+        const existingUser = await userRepository.findOne({ where: { email } });
         if (existingUser) {
           throw new ConflictException('Email already in use');
         }
     
         const hashedPassword = await bcrypt.hash(password, 10);
     
-        const user = await this.prisma.user.create({
-          data: {
-            firstName,
-            lastName,
-            email,
-            password: hashedPassword,
-            phone,
-          },
+        const user = await userRepository.create({
+          firstName,
+          lastName,
+          email,
+          password: hashedPassword,
+          phone,
         });
     
         const organisation = await this.prisma.organisation.create({

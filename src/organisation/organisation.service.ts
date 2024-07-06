@@ -1,13 +1,17 @@
 // src/organisation/organisation.service.ts
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../typeorm/typeorm.service';
+import { DataSource } from 'typeorm';
+import { DatabaseService } from '../database/database.service';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { AddUserDto } from './dto/add-user.dto';
-
+import { Organisation } from './organisation.entity';
 
 @Injectable()
 export class OrganisationService {
-  constructor(private prisma: PrismaService) {}
+  private dataSource: DataSource;
+  constructor(private databaseService: DatabaseService) {
+    this.dataSource = this.databaseService.getDataSource();
+  }
 
   async getOrganisations(userId: string) {
     const organisations = await this.prisma.organisation.findMany({
