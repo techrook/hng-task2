@@ -2,8 +2,9 @@
 import {
   Injectable,
   ConflictException,
-  UnprocessableEntityException,
   NotFoundException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { User } from '../user/user.entity';
@@ -17,7 +18,6 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(
     private dataSource: DataSource,
-    // private jwtService: JwtService,
     private jwt: JwtService,
   ) {}
 
@@ -25,9 +25,8 @@ export class AuthService {
     const { firstName, lastName, email, password, phone } = createUserDto;
     const userRepository = this.dataSource.getRepository(User);
     const organisationRepository = this.dataSource.getRepository(Organisation);
-
-    // Check if user already exists
-    const existingUser = await userRepository.findOne({ where: { email } });
+    try {
+      const existingUser = await userRepository.findOne({ where: { email } });
     if (existingUser) {
       throw new ConflictException('Email already in use');
     }
@@ -68,38 +67,56 @@ export class AuthService {
         },
       },
     };
+    } catch (error) {
+      throw new HttpException({
+        status: 'Bad request',
+        message: 'Registration unsuccessful',
+        statusCode: HttpStatus.BAD_REQUEST,
+      }, HttpStatus.BAD_REQUEST);
+    }
+    // Check if user already exists
+    
   }
 
   async login(user: LoginDto) {
     const userRepository = this.dataSource.getRepository(User);
-    const uniqueUser = await userRepository.findOne({
-      where: { email: user.email },
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    const isPasswordValid = await bcrypt.compare(
-      user.password,
-      uniqueUser.password,
-    );
-    if (!isPasswordValid) {
-      throw new NotFoundException('Invalid credentials');
-    }
-    const accessToken = await this.signToken(uniqueUser.id, uniqueUser.email);
-    return {
-      status: 'success',
-      message: 'Login successful',
-      data: {
-        accessToken,
-        user: {
-          userId: uniqueUser.id,
-          firstName: uniqueUser.firstName,
-          lastName: uniqueUser.lastName,
-          email: uniqueUser.email,
-          phone: uniqueUser.phone,
+    try {
+      const uniqueUser = await userRepository.findOne({
+        where: { email: user.email },
+      });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      const isPasswordValid = await bcrypt.compare(
+        user.password,
+        uniqueUser.password,
+      );
+      if (!isPasswordValid) {
+        throw new NotFoundException('Invalid credentials');
+      }
+      const accessToken = await this.signToken(uniqueUser.id, uniqueUser.email);
+      return {
+        status: 'success',
+        message: 'Login successful',
+        data: {
+          accessToken,
+          user: {
+            userId: uniqueUser.id,
+            firstName: uniqueUser.firstName,
+            lastName: uniqueUser.lastName,
+            email: uniqueUser.email,
+            phone: uniqueUser.phone,
+          },
         },
-      },
-    };
+      };
+    } catch (error) {
+      throw new HttpException({
+        status: 'Bad request',
+        message: 'Authentication failed',
+        statusCode: HttpStatus.UNAUTHORIZED,
+      }, HttpStatus.BAD_REQUEST);
+    }
+    
   }
   async signToken(id: string, email: string): Promise<string> {
     const payload = {
