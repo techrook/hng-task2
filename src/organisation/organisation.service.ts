@@ -1,28 +1,27 @@
 // src/organisation/organisation.service.ts
+
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { DatabaseService } from '../database/database.service';
+
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { AddUserDto } from './dto/add-user.dto';
 import { Organisation } from './organisation.entity';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class OrganisationService {
-  private dataSource: DataSource;
-  constructor(private databaseService: DatabaseService) {
-    this.dataSource = this.databaseService.getDataSource();
+
+  constructor(private readonly dataSource: DataSource,) {
+
   }
 
   async getOrganisations(userId: string) {
-    const organisations = await this.prisma.organisation.findMany({
-      where: {
-        users: {
-          some: {
-            id: userId,
-          },
-        },
-      },
-    });
+    const organisationRepository = this.dataSource.getRepository(Organisation);
+    const organisations = await organisationRepository
+      .createQueryBuilder('organisation')
+      .leftJoinAndSelect('organisation.users', 'user')
+      .where('user.id = :userId', { userId })
+      .getMany();
 
     return {
       status: 'success',
@@ -34,9 +33,10 @@ export class OrganisationService {
   }
 
   async getOrganisation(orgId: string, userId: string) {
-    const organisation = await this.prisma.organisation.findUnique({
+    const organisationRepository = this.dataSource.getRepository(Organisation);
+    const organisation = await organisationRepository.findOne({
       where: { id: orgId },
-      include: { users: true },
+      relations: ['users'],
     });
 
     if (!organisation) {
@@ -57,14 +57,15 @@ export class OrganisationService {
   }
 
   async createOrganisation(createOrganisationDto: CreateOrganisationDto, userId: string) {
-    const organisation = await this.prisma.organisation.create({
-      data: {
-        ...createOrganisationDto,
-        users: {
-          connect: { id: userId },
-        },
-      },
+    const organisationRepository = this.dataSource.getRepository(Organisation);
+    const userRepository = this.dataSource.getRepository(User);
+    const user = await userRepository.findOne({ where: { id: userId } });
+
+    const organisation = organisationRepository.create({
+      ...createOrganisationDto,
+      users: [user],
     });
+    await organisationRepository.save(organisation);
 
     return {
       status: 'success',
@@ -74,9 +75,12 @@ export class OrganisationService {
   }
 
   async addUserToOrganisation(orgId: string, addUserDto: AddUserDto, currentUserId: string) {
-    const organisation = await this.prisma.organisation.findUnique({
+    const organisationRepository = this.dataSource.getRepository(Organisation);
+    const userRepository = this.dataSource.getRepository(User);
+
+    const organisation = await organisationRepository.findOne({
       where: { id: orgId },
-      include: { users: true },
+      relations: ['users'],
     });
 
     if (!organisation) {
@@ -89,14 +93,10 @@ export class OrganisationService {
       throw new ForbiddenException('You do not have access to this organisation');
     }
 
-    await this.prisma.organisation.update({
-      where: { id: orgId },
-      data: {
-        users: {
-          connect: { id: addUserDto.userId },
-        },
-      },
-    });
+    const newUser = await userRepository.findOne({ where: { id: addUserDto.userId } });
+
+    organisation.users.push(newUser);
+    await organisationRepository.save(organisation);
 
     return {
       status: 'success',

@@ -7,7 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import typeOrmConfig from './config/typeorm.config'; // Adjust the path as needed
 import { JwtModule } from '@nestjs/jwt';
-import { DatabaseService } from './database/database.service';
+// import { DatabaseService } from './database/database.service';
+// import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -21,12 +22,14 @@ import { DatabaseService } from './database/database.service';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => configService.get('typeorm'),
       inject: [ConfigService],
+      
     }),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
+    // DatabaseModule,
   ],
-  providers: [DatabaseService],
+  providers: [],
 })
 export class AppModule {}

@@ -3,9 +3,10 @@ import { OrganisationService } from './organisation.service';
 import { OrganisationController } from './organisation.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Organisation } from './organisation.entity'; 
+//import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Organisation])],
+  imports: [TypeOrmModule.forFeature([Organisation]), ],
   exports: [OrganisationService],
   providers: [OrganisationService,],
   controllers: [OrganisationController],

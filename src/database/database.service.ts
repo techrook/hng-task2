@@ -1,20 +1,22 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { connectionSource } from '../config/typeorm.config'; // Adjust the path as needed
+// src/database/database.service.ts
 
-@Injectable()
-export class DatabaseService implements OnModuleInit, OnModuleDestroy {
-  private dataSource: DataSource;
+// import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+// import { DataSource } from 'typeorm';
+// import { connectionSource } from '../config/typeorm.config'; // Adjust the path as needed
 
-  async onModuleInit() {
-    this.dataSource = await connectionSource.initialize();
-  }
+// @Injectable()
+// export class DatabaseService implements OnModuleInit, OnModuleDestroy {
+//   private dataSource: DataSource;
 
-  async onModuleDestroy() {
-    await this.dataSource.destroy();
-  }
+//   async onModuleInit() {
+//     this.dataSource = await connectionSource.initialize();
+//   }
 
-  getDataSource(): DataSource {
-    return this.dataSource;
-  }
-}
+//   async onModuleDestroy() {
+//     await this.dataSource.destroy();
+//   }
+
+//   getDataSource(): DataSource {
+//     return this.dataSource;
+//   }
+// }

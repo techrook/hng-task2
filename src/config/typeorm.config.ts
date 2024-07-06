@@ -1,7 +1,8 @@
 import { registerAs } from '@nestjs/config';
 import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
-
+import { User } from '../user/user.entity';
+import { Organisation } from '../organisation/organisation.entity';
 // Load environment variables from .env file
 dotenvConfig({ path: '.env' });
 
@@ -13,9 +14,11 @@ const typeOrmConfig: DataSourceOptions = {
   username: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: ['dist/**/*.entity{.ts,.js}'],
-  migrations: ['dist/migrations/*{.ts,.js}'],
+  entities: [User, Organisation],
+  migrationsTableName: 'HNG', 
+  migrations: ['src/migrations/*.ts'], 
   synchronize: false,
+  
 };
 
 // Export the TypeORM configuration using registerAs for NestJS

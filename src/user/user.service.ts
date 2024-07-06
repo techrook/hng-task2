@@ -1,15 +1,15 @@
 // src/user/user.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../typeorm/typeorm.service';
+import { DataSource } from 'typeorm';
+import { User } from './user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private dataSource: DataSource) {}
 
   async getUser(id: string, currentUserId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
+    const userRepository = this.dataSource.getRepository(User);
+    const user = await userRepository.findOne({ where: { id } });
 
     if (!user) {
       throw new NotFoundException('User not found');
