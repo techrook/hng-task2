@@ -43,7 +43,7 @@ export class OrganisationService {
       throw new NotFoundException('Organisation not found');
     }
 
-    const isUserMember = organisation.users.some((user) => user.id === userId);
+    const isUserMember = organisation.users.some((user) => user.userId === userId);
 
     if (!isUserMember) {
       throw new ForbiddenException('You do not have access to this organisation');
@@ -59,7 +59,7 @@ export class OrganisationService {
   async createOrganisation(createOrganisationDto: CreateOrganisationDto, userId: string) {
     const organisationRepository = this.dataSource.getRepository(Organisation);
     const userRepository = this.dataSource.getRepository(User);
-    const user = await userRepository.findOne({ where: { id: userId } });
+    const user = await userRepository.findOne({ where: { userId: userId } });
 
     const organisation = organisationRepository.create({
       ...createOrganisationDto,
@@ -87,13 +87,13 @@ export class OrganisationService {
       throw new NotFoundException('Organisation not found');
     }
 
-    const isUserMember = organisation.users.some((user) => user.id === currentUserId);
+    const isUserMember = organisation.users.some((user) => user.userId === currentUserId);
 
     if (!isUserMember) {
       throw new ForbiddenException('You do not have access to this organisation');
     }
 
-    const newUser = await userRepository.findOne({ where: { id: addUserDto.userId } });
+    const newUser = await userRepository.findOne({ where: { userId: addUserDto.userId } });
 
     organisation.users.push(newUser);
     await organisationRepository.save(organisation);

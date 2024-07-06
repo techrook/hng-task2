@@ -5,7 +5,7 @@ import { Organisation } from '../organisation/organisation.entity'; // Adjust th
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  userId: string;
 
   @Column()
   firstName: string;

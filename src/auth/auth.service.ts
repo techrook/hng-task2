@@ -16,6 +16,9 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
+  validateUser(userId: any) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     private dataSource: DataSource,
     private jwt: JwtService,
@@ -51,7 +54,7 @@ export class AuthService {
     await organisationRepository.save(organisation);
 
     // Create the JWT payload and sign the token
-    const accessToken = await this.signToken(user.id, user.email);
+    const accessToken = await this.signToken(user.userId, user.email);
     await userRepository.save(user);
     return {
       status: 'success',
@@ -59,7 +62,7 @@ export class AuthService {
       data: {
         accessToken,
         user: {
-          userId: user.id,
+          userId: user.userId,
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
@@ -94,14 +97,14 @@ export class AuthService {
       if (!isPasswordValid) {
         throw new NotFoundException('Invalid credentials');
       }
-      const accessToken = await this.signToken(uniqueUser.id, uniqueUser.email);
+      const accessToken = await this.signToken(uniqueUser.userId, uniqueUser.email);
       return {
         status: 'success',
         message: 'Login successful',
         data: {
           accessToken,
           user: {
-            userId: uniqueUser.id,
+            userId: uniqueUser.userId,
             firstName: uniqueUser.firstName,
             lastName: uniqueUser.lastName,
             email: uniqueUser.email,

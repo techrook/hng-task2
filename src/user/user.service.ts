@@ -9,7 +9,7 @@ export class UserService {
 
   async getUser(id: string, currentUserId: string) {
     const userRepository = this.dataSource.getRepository(User);
-    const user = await userRepository.findOne({ where: { id } });
+    const user = await userRepository.findOne({ where: { userId: id } });
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -19,7 +19,7 @@ export class UserService {
       status: 'success',
       message: 'User retrieved successfully',
       data: {
-        userId: user.id,
+        userId: user.userId,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
