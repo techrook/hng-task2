@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Organisation } from '../organisation/organisation.entity';
 
 @Entity()
@@ -21,6 +21,6 @@ export class User {
   @Column()
   phone: string;
 
-  @ManyToMany(() => Organisation, organisation => organisation.users)
+  @ManyToMany(() => Organisation, organisation=> organisation.users)
   organisations: Organisation[];
 }

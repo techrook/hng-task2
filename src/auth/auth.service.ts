@@ -47,11 +47,26 @@ export class AuthService {
     });
 
     // Create and save the new organisation
-    const organisation =  organisationRepository.create({
+    await userRepository.save(user);
+
+    // Create and save the new organisation
+    const organisation = organisationRepository.create({
       name: `${firstName}'s Organisation`,
-      users: [user],
+      users: [],
     });
+
+    // Add the user to the organisation's users array
+    organisation.users = [user];
+
+    // Save the organisation
     await organisationRepository.save(organisation);
+
+    // Add the organisation to the user's organisations array
+    user.organisations = [organisation];
+
+    // Save the updated user
+    await userRepository.save(user);
+
 
     // Create the JWT payload and sign the token
     const accessToken = await this.signToken(user.userId, user.email);

@@ -17,17 +17,24 @@ export class OrganisationService {
 
   async getOrganisations(userId: string) {
     const organisationRepository = this.dataSource.getRepository(Organisation);
-    const organisations = await organisationRepository
-      .createQueryBuilder('organisation')
-      .leftJoinAndSelect('organisation.users', 'user')
-      .where('user.userId = :userId', { userId })
-      .getMany();
+    const organisations = await organisationRepository.find({ relations: ['users'] });
+ console.log(organisations)
+    const userOrganisations = organisations.filter(org => 
+      org.users.some(user => user.userId === userId)
+    );
+
+     
+      const formattedOrganisations = userOrganisations.map(org => ({
+        orgId: org.orgId,
+        name: org.name,
+        description: org.description,
+      }));
   
     return {
       status: 'success',
       message: 'Organisations retrieved successfully',
       data: {
-        organisations,
+        organisations:formattedOrganisations,
       },
     };
   }

@@ -12,7 +12,7 @@ export class Organisation {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, user => user.organisations)
   @JoinTable()
   users: User[];
 }
