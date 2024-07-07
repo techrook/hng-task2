@@ -18,7 +18,6 @@ export class OrganisationService {
   async getOrganisations(userId: string) {
     const organisationRepository = this.dataSource.getRepository(Organisation);
     const organisations = await organisationRepository.find({ relations: ['users'] });
- console.log(organisations)
     const userOrganisations = organisations.filter(org => 
       org.users.some(user => user.userId === userId)
     );
@@ -57,10 +56,15 @@ export class OrganisationService {
       throw new ForbiddenException('You do not have access to this organisation');
     }
 
+
     return {
       status: 'success',
       message: 'Organisation retrieved successfully',
-      data: organisation,
+      data: {
+        orgId: organisation.orgId,
+        name: organisation.name,
+        description: organisation.description,
+      },
     };
   }
 
