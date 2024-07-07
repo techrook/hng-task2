@@ -20,9 +20,9 @@ export class OrganisationService {
     const organisations = await organisationRepository
       .createQueryBuilder('organisation')
       .leftJoinAndSelect('organisation.users', 'user')
-      .where('user.id = :userId', { userId })
+      .where('user.userId = :userId', { userId })
       .getMany();
-
+  
     return {
       status: 'success',
       message: 'Organisations retrieved successfully',
@@ -31,11 +31,12 @@ export class OrganisationService {
       },
     };
   }
-
+  
+  
   async getOrganisation(orgId: string, userId: string) {
     const organisationRepository = this.dataSource.getRepository(Organisation);
     const organisation = await organisationRepository.findOne({
-      where: { id: orgId },
+      where: { orgId: orgId },
       relations: ['users'],
     });
 
@@ -79,7 +80,7 @@ export class OrganisationService {
     const userRepository = this.dataSource.getRepository(User);
 
     const organisation = await organisationRepository.findOne({
-      where: { id: orgId },
+      where: { orgId: orgId },
       relations: ['users'],
     });
 

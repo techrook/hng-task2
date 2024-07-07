@@ -1,11 +1,10 @@
-// src/organisation/organisation.entity.ts
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
-import { User } from '../user/user.entity'; // Adjust the path as needed
+import { User } from '../user/user.entity';
 
 @Entity()
 export class Organisation {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  orgId: string;
 
   @Column()
   name: string;
@@ -13,7 +12,7 @@ export class Organisation {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToMany(() => User, user => user.organisations)
+  @ManyToMany(() => User)
   @JoinTable()
   users: User[];
 }

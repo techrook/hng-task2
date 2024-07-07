@@ -47,7 +47,7 @@ export class AuthService {
     });
 
     // Create and save the new organisation
-    const organisation = organisationRepository.create({
+    const organisation =  organisationRepository.create({
       name: `${firstName}'s Organisation`,
       users: [user],
     });
@@ -71,13 +71,13 @@ export class AuthService {
       },
     };
     } catch (error) {
+      console.log(error)
       throw new HttpException({
         status: 'Bad request',
         message: 'Registration unsuccessful',
         statusCode: HttpStatus.BAD_REQUEST,
       }, HttpStatus.BAD_REQUEST);
     }
-    // Check if user already exists
     
   }
 

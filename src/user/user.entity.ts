@@ -1,6 +1,5 @@
-// src/user/user.entity.ts
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
-import { Organisation } from '../organisation/organisation.entity'; // Adjust the path as needed
+import { Organisation } from '../organisation/organisation.entity';
 
 @Entity()
 export class User {
@@ -19,7 +18,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ nullable: true })
+  @Column()
   phone: string;
 
   @ManyToMany(() => Organisation, organisation => organisation.users)
