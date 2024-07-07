@@ -78,11 +78,14 @@ export class OrganisationService {
       users: [user],
     });
     await organisationRepository.save(organisation);
-
     return {
       status: 'success',
       message: 'Organisation created successfully',
-      data: organisation,
+      data: {
+        orgId: organisation.orgId,
+        name: organisation.name,
+        description: organisation.description,
+      },
     };
   }
 
