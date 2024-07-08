@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
+import { OrganisationService } from '../organisation/organisation.service';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -8,6 +9,7 @@ import { ConflictException, HttpException, NotFoundException } from '@nestjs/com
 
 describe('AuthService', () => {
   let authService: AuthService;
+  let organisationService: OrganisationService
   let jwtService: JwtService;
   let dataSource: Partial<Record<'getRepository', jest.Mock>>; // Define type for dataSource
 
@@ -19,6 +21,7 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        OrganisationService,
         {
           provide: DataSource,
           useValue: dataSource,
@@ -33,6 +36,7 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
+    organisationService = module.get<OrganisationService>(OrganisationService)
     jwtService = module.get<JwtService>(JwtService);
   });
 
@@ -70,6 +74,18 @@ describe('AuthService', () => {
         password: 'password',
         phone: '1234567890',
       };
+      const createdOrganisation = {
+        id: 1,
+        name: 'Default Organisation Name',
+        user: {
+          userId: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john.doe@example.com',
+          phone: '1234567890',
+        },
+      };
+
 
       const userRepository = {
         findOne: jest.fn().mockResolvedValue(null), // No existing user
@@ -77,12 +93,22 @@ describe('AuthService', () => {
         save: jest.fn().mockResolvedValue(createUserDto as any),
       } as any;
 
-      jest.spyOn(dataSource, 'getRepository').mockReturnValue(userRepository);
+
+      const organisationRepository = {
+        save: jest.fn().mockResolvedValue(createdOrganisation as any),
+        find: jest.fn().mockResolvedValue([createdOrganisation as any]),
+      };
+
+      jest.spyOn(dataSource, 'getRepository').mockReturnValue([userRepository,organisationRepository]);
+      // jest.spyOn(dataSource, 'getRepository').mockReturnValue(organisationRepository);
 
       jest.spyOn(bcrypt, 'hash').mockImplementation(async () => 'hashed_password');
 
 
       const result = await authService.create(createUserDto);
+      const testUser = result.data.user
+      const resultOrganisation = await organisationService.getOrganisations(testUser.userId)
+      
 
       expect(result.status).toEqual('success');
       expect(result.message).toEqual('Registration successful');
@@ -90,6 +116,7 @@ describe('AuthService', () => {
       expect(result.data.user.firstName).toEqual('John');
       expect(result.data.user.lastName).toEqual('Doe');
       expect(result.data.user.email).toEqual('john.doe@example.com');
+      expect(resultOrganisation[0].status).toEqual("success")
     });
 
     it('should throw ConflictException if email is already in use', async () => {
