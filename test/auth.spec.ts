@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { OrganisationService } from '../organisation/organisation.service';
+import { AuthService } from '../src/auth/auth.service'
+import { OrganisationService } from '../src/organisation/organisation.service';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../user/user.entity';
+import { User } from '../src/user/user.entity';
 import { ConflictException, HttpException, NotFoundException } from '@nestjs/common';
 
 describe('AuthService', () => {
