@@ -11,17 +11,14 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const errorResponse = exception.getResponse();
     let errors: any = [];
     
-    // Check if the response is an object with a `message` property
     if (typeof errorResponse === 'object' && 'message' in errorResponse) {
       errors = errorResponse.message;
     }
 
-    // Check if the response is an array (for validation errors)
     if (Array.isArray(errorResponse)) {
       errors = errorResponse;
     }
 
-    // Format validation errors if they are ValidationError instances
     if (errors instanceof Array) {
       errors = this.formatValidationErrors(errors);
     }
